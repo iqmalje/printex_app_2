@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:printex_app_v2/profilepage/settings.dart';
 // import 'package:printex_app/pages/homepage/howtousepage.dart';
 // import 'package:printex_app/pages/settings/settings.dart';
 
@@ -66,10 +67,7 @@ class PrinTEXComponents {
               child: InkWell(
                 borderRadius: BorderRadius.circular(100),
                 onTap: () {
-                  Switcher().SwitchPage(
-                      context,
-                      // const SettingsPage());
-                      Container());
+                  Switcher().SwitchPage(context, const SettingsPage());
                 },
                 child: Ink(
                   width: 50,
@@ -107,10 +105,7 @@ class PrinTEXComponents {
               child: InkWell(
                 borderRadius: BorderRadius.circular(100),
                 onTap: () {
-                  Switcher().SwitchPage(
-                      context,
-                      // const SettingsPage());
-                      Container());
+                  Switcher().SwitchPage(context, const SettingsPage());
                 },
                 child: Ink(
                   width: 50,

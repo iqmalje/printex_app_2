@@ -39,6 +39,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   flutter_multi_formatter: ^2.12.8
   email_validator: ^2.1.17
+  image_picker: ^1.0.8
 
 dev_dependencies:
   flutter_test:

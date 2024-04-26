@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:path/path.dart';
 
 class AuthenticationDAO {
   SupabaseClient supabase = Supabase.instance.client;
@@ -91,6 +95,65 @@ class AuthenticationDAO {
     await supabase
         .from('wallet')
         .insert({'accountid': response.user!.id, 'balance': 0});
+  }
+
+  Future<dynamic> getProfileInfo() async {
+    var result = await supabase.from('accounts').select('*');
+    print(result);
+
+    return result[0];
+  }
+
+  Future<void> updateProfilePic(File image) async {
+    var userid = supabase.auth.currentUser!.id;
+
+    //upload to storage
+    await supabase.storage
+        .from('profilepics')
+        .upload('$userid/${basename(image.path)}', image);
+    //get image url
+    var imageurl = supabase.storage
+        .from('profilepics')
+        .getPublicUrl('$userid/${basename(image.path)}');
+
+    //update db
+    await supabase
+        .from('accounts')
+        .update({'profilepic': imageurl}).eq('accountid', userid);
+  }
+
+  Future<void> deleteAccount() async {
+    var userid = supabase.auth.currentUser!.id;
+    var data = await supabase.functions
+        .invoke('delete_account', body: {'userid': userid});
+
+    //later we log out
+
+    await supabase.auth.signOut();
+  }
+
+  Future<void> updateFullName(String fullname) async {
+    var userid = supabase.auth.currentUser!.id;
+
+    await supabase
+        .from('accounts')
+        .update({'fullname': fullname}).eq('accountid', userid);
+  }
+
+  Future<void> updatePhone(String phone) async {
+    var userid = supabase.auth.currentUser!.id;
+
+    await supabase
+        .from('accounts')
+        .update({'phone': phone}).eq('accountid', userid);
+  }
+
+  Future<void> updateEmail(String email) async {
+    var userid = supabase.auth.currentUser!.id;
+
+    await supabase
+        .from('accounts')
+        .update({'email': email}).eq('accountid', userid);
   }
 }
 
