@@ -4,11 +4,17 @@ import 'package:printex_app_v2/authentication/signinpage.dart';
 import 'package:printex_app_v2/homepage/temppage.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+bool isLoggedIn = false;
 void main() async {
   await dotenv.load(fileName: ".env");
   WidgetsFlutterBinding.ensureInitialized();
   await Supabase.initialize(
       anonKey: dotenv.env['SUPABASE_KEY']!, url: dotenv.env['SUPABASE_URL']!);
+
+  if (Supabase.instance.client.auth.currentUser != null) {
+    // user is logged
+    isLoggedIn = true;
+  }
 
   runApp(const MyApp());
 }
@@ -34,7 +40,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const MainPage(),
+      home: isLoggedIn ? TempPage() : const MainPage(),
     );
   }
 }

@@ -74,7 +74,7 @@ class _MainPageState extends State<MainPage> {
                           Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              const Text('Welcome back!',
+                              const Text('Welcome to PrinTEX',
                                   style: TextStyle(
                                       fontFamily: 'Poppins',
                                       color: Colors.white,
@@ -146,6 +146,7 @@ class _MainPageState extends State<MainPage> {
                                   isLoading = true;
                                 });
                                 try {
+                                  // ignore: unused_local_variable
                                   String result = await AuthenticationDAO()
                                       .signIn(email.text, password.text);
 

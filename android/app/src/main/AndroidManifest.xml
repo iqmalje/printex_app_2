@@ -1,8 +1,14 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <uses-permission android:name="android.permission.INTERNET" />
     <application
-        android:label="printex_app_v2"
+        android:label="PrinTEX MY"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
+
+
+         <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyAGmYTfJWiirE_03Z-patL3OAFiMfmgXYg"/>
         <activity
             android:name=".MainActivity"
             android:exported="true"

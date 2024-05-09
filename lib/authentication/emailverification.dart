@@ -1,3 +1,5 @@
+// ignore_for_file: must_be_immutable
+
 import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
@@ -56,7 +58,6 @@ class _PhoneVerificationPageState extends State<EmailVerificationPage> {
   @override
   Widget build(BuildContext context) {
     var node = FocusScope.of(context);
-    var scale = ScaleSize.textScaleFactor(context);
     return Scaffold(
       backgroundColor: const Color(0xFF6F6EFF),
       body: SafeArea(

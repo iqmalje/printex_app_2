@@ -1,4 +1,4 @@
-package com.example.printex_app_v2
+package com.larabit.printex_app_v2
 
 import io.flutter.embedding.android.FlutterActivity
 

@@ -40,27 +40,30 @@ class PrinTEXComponents {
         ));
   }
 
-  PreferredSize appBar(String title, BuildContext context, String? profpic) {
+  PreferredSize appBar(String title, BuildContext context, String? profpic,
+      {bool showGuide = false}) {
     if (profpic == null) {
       return PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: AppBar(
           automaticallyImplyLeading: false,
-          leading: Padding(
-            padding: const EdgeInsets.only(left: 15),
-            child: IconButton(
-                onPressed: () {
-                  showDialog(
-                      context: context,
-                      // builder: (context) => const HowToUsePage());
-                      builder: (context) => Container());
-                },
-                icon: const Icon(
-                  Icons.info_outline,
-                  color: Colors.white,
-                  size: 30,
-                )),
-          ),
+          leading: showGuide
+              ? Padding(
+                  padding: const EdgeInsets.only(left: 15),
+                  child: IconButton(
+                      onPressed: () {
+                        showDialog(
+                            context: context,
+                            // builder: (context) => const HowToUsePage());
+                            builder: (context) => Container());
+                      },
+                      icon: const Icon(
+                        Icons.info_outline,
+                        color: Colors.white,
+                        size: 30,
+                      )),
+                )
+              : null,
           actions: [
             Padding(
               padding: const EdgeInsets.only(right: 15.0),
