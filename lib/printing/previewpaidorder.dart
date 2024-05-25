@@ -6,6 +6,7 @@ import 'package:printex_app_v2/backend/apmDAO.dart';
 import 'package:printex_app_v2/backend/orderDAO.dart';
 import 'package:printex_app_v2/components.dart';
 import 'package:printex_app_v2/printing/qrpage.dart';
+import 'package:printex_app_v2/printing/receiptpage.dart';
 import 'package:printex_app_v2/printing/viewdetails.dart';
 
 class PreviewPaidOrderPage extends StatefulWidget {
@@ -15,6 +16,7 @@ class PreviewPaidOrderPage extends StatefulWidget {
   Map fileDetails;
   String status;
   String? apmId;
+  DateTime date;
   PreviewPaidOrderPage(
       {super.key,
       required this.settings,
@@ -22,11 +24,12 @@ class PreviewPaidOrderPage extends StatefulWidget {
       required this.orderid,
       required this.status,
       required this.fileDetails,
+      required this.date,
       this.apmId});
 
   @override
   State<PreviewPaidOrderPage> createState() => _PreviewPaidOrderPageState(
-      settings, fileDetails, status, cost, orderid, apmId);
+      settings, fileDetails, status, cost, orderid,date, apmId);
 }
 
 class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
@@ -36,10 +39,11 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
   Map fileDetails;
   String status;
   String? apmId;
+  DateTime date;
 
   _PreviewPaidOrderPageState(this.settings, this.fileDetails, this.status,
-      this.cost, this.orderid, this.apmId);
-
+      this.cost, this.orderid, this.date, this.apmId);
+  Map<String, dynamic>? apmDetails;
   @override
   Widget build(BuildContext context) {
     print("orderid = $orderid");
@@ -175,6 +179,8 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                         }
 
                         print(snapshot.data);
+
+                        apmDetails = snapshot.data! as Map<String, dynamic>;
                         return Container(
                             width: MediaQuery.sizeOf(context).width * 0.8,
                             height: 80,
@@ -397,36 +403,58 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Builder(builder: (context) {
                   if (status == 'DONE') {
-                    return PrinTEXComponents().greyButton(150, 'Delete file',
-                        () async {
-                      bool? isDeleted = await showDialog(
-                          context: context,
-                          builder: (context) {
-                            return AlertDialog(
-                              actionsAlignment: MainAxisAlignment.spaceBetween,
-                              title: const Text(
-                                'Are you sure you want to delete this file?',
-                                style: TextStyle(
-                                    fontFamily: 'Poppins', fontSize: 17),
-                              ),
-                              actions: [
-                                PrinTEXComponents().greyButton(100, 'Cancel',
-                                    () {
-                                  Navigator.of(context).pop();
-                                }, fontsize: 15, height: 40),
-                                PrinTEXComponents().filledButton(100, 'Confirm',
-                                    () async {
-                                  await OrderDAO().deleteOrderLive(
-                                      orderid, fileDetails['fileid']);
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        PrinTEXComponents()
+                            .filledButton(170, 'Generate receipt', () async {
+                          Switcher().SwitchPage(
+                              context,
+                              ReceiptPage(
+                                settings: settings,
+                                fileDetails: fileDetails,
+                                status: status,
+                                cost: cost,
+                                orderid: orderid,
+                                apmDetails: apmDetails!, date: date,
+                              ));
+                        }, fontsize: 17),
+                        const SizedBox(
+                          width: 20,
+                        ),
+                        PrinTEXComponents().greyButton(150, 'Delete file',
+                            () async {
+                          bool? isDeleted = await showDialog(
+                              context: context,
+                              builder: (context) {
+                                return AlertDialog(
+                                  actionsAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  title: const Text(
+                                    'Are you sure you want to delete this file?',
+                                    style: TextStyle(
+                                        fontFamily: 'Poppins', fontSize: 17),
+                                  ),
+                                  actions: [
+                                    PrinTEXComponents()
+                                        .greyButton(100, 'Cancel', () {
+                                      Navigator.of(context).pop();
+                                    }, fontsize: 15, height: 40),
+                                    PrinTEXComponents()
+                                        .filledButton(100, 'Confirm', () async {
+                                      await OrderDAO().deleteOrderLive(
+                                          orderid, fileDetails['fileid']);
 
-                                  Navigator.of(context).pop(true);
-                                }, fontsize: 15, heightS: 40),
-                              ],
-                            );
-                          });
-                      isDeleted ??= false;
-                      if (isDeleted) Navigator.of(context).pop();
-                    }, fontsize: 17);
+                                      Navigator.of(context).pop(true);
+                                    }, fontsize: 15, heightS: 40),
+                                  ],
+                                );
+                              });
+                          isDeleted ??= false;
+                          if (isDeleted) Navigator.of(context).pop();
+                        }, fontsize: 17),
+                      ],
+                    );
                   }
 
                   return Row(

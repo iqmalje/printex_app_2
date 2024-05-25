@@ -10,6 +10,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path/path.dart';
 import 'package:pdf_render/pdf_render.dart';
+import 'package:printex_app_v2/backend/apmDAO.dart';
 import 'package:printex_app_v2/backend/orderDAO.dart';
 import 'package:printex_app_v2/components.dart';
 import 'package:printex_app_v2/printing/previeworder.dart';
@@ -48,7 +49,7 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
   bool hasLoaded = false;
   @override
   void initState() {
-    OrderDAO().getCosts().then((value) => {
+    ApmDAO().getAPMCost(printerItem['apmid']).then((value) => {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             setState(() {
               costs = value;
@@ -1002,6 +1003,7 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
                                     'pages': range,
                                     'pagecount': pagecount,
                                   },
+                                  date: DateTime.now(),
                                   file: fileUploaded!,
                                   printerItem: printerItem,
                                   selectedPageBytes: selectedPageBytes,

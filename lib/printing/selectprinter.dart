@@ -28,7 +28,7 @@ class _SelectPrinterPageState extends State<SelectPrinterPage> {
     serviceEnabled = await geo.Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
       var status = await location.serviceEnabled();
-      print(status);
+
       if (status) {
         //asks user to turn on location
         var turnedon = await location.requestService();
@@ -60,11 +60,8 @@ class _SelectPrinterPageState extends State<SelectPrinterPage> {
   @override
   void initState() {
     super.initState();
-    print('test');
 
     _determineAccess().then((value) {
-      print("VALUE KAT SINI");
-      print(value);
       if (value == null) {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           setState(() {
@@ -142,7 +139,13 @@ class _SelectPrinterPageState extends State<SelectPrinterPage> {
 
   Widget buildPrinters(dynamic item) {
     double metersDistance = Geolocator.distanceBetween(
-        position!.latitude, position!.longitude, item['lat'], item['lng']);
+        position!.latitude,
+        position!.longitude,
+        double.parse(item['lat'].toString()),
+        double.parse(item['lng'].toString()));
+
+    print(
+        "${double.parse(item['lat'].toString())} ${double.parse(item['lng'].toString())}");
     String unit = metersDistance >= 1000 ? 'km' : 'm';
     if (metersDistance >= 1000) {
       metersDistance = metersDistance / 1000;
@@ -185,7 +188,7 @@ class _SelectPrinterPageState extends State<SelectPrinterPage> {
                           fontSize: 16),
                     ),
                     Text(
-                      'Distance : ${metersDistance.toStringAsFixed(2)} $unit',
+                      'Distance : ${double.parse(metersDistance.toString()).toStringAsFixed(2)} $unit',
                       style: const TextStyle(
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.w400,

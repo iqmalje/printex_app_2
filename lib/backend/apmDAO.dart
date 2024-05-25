@@ -6,7 +6,7 @@ class ApmDAO {
   Future<List<dynamic>> getAPMs(double lat, double lng) async {
     var result = await supabase.rpc('get_apm_within_radius',
         params: {'userlat': lat, 'userlong': lng});
-    print(result);
+    
     return result;
   }
 
@@ -22,5 +22,15 @@ class ApmDAO {
           ''').match({'apmid': apmid}).single();
     print(resultAPM);
     return resultAPM;
+  }
+
+  Future<Map<String, dynamic>> getAPMCost(String apmID) async {
+    var data = await supabase
+        .from('apm_costs')
+        .select('*')
+        .eq('apmid', apmID)
+        .single();
+
+    return data;
   }
 }

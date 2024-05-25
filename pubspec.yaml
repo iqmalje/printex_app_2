@@ -53,6 +53,8 @@ dependencies:
   pdf_render: ^1.4.6
   qr_flutter: ^4.1.0
   screenshot: ^2.3.0
+  currency_text_input_formatter: ^2.2.3
+  flutter_to_pdf: ^0.2.0
 
 dev_dependencies:
   flutter_test:
@@ -84,6 +86,7 @@ flutter:
   assets:
     - .env
     - assets/images/
+    - assets/fonts/Poppins/Poppins-Regular.ttf
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

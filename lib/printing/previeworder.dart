@@ -23,6 +23,7 @@ class PreviewOrder extends StatefulWidget {
   String? orderid;
   dynamic printerItem;
   Map<String, dynamic> costs;
+  DateTime date;
 
   List<Uint8List> selectedPageBytes;
   PreviewOrder(
@@ -34,11 +35,12 @@ class PreviewOrder extends StatefulWidget {
       required this.selectedPageBytes,
       this.orderid,
       required this.printerItem,
-      required this.costs});
+      required this.costs,
+      required this.date});
 
   @override
   State<PreviewOrder> createState() => _PreviewOrderState(settings, file,
-      filedetails, cost, selectedPageBytes, orderid, printerItem, costs);
+      filedetails, cost, selectedPageBytes, orderid, printerItem, costs, date);
 }
 
 class _PreviewOrderState extends State<PreviewOrder> {
@@ -52,11 +54,12 @@ class _PreviewOrderState extends State<PreviewOrder> {
   bool isUploading = false;
   List<Uint8List> selectedPageBytes;
   dynamic printerItem;
+  DateTime date;
   Map<String, dynamic> costs;
 
   Uint8List? coverBytes;
   _PreviewOrderState(this.settings, this.file, this.fileDetails, this.cost,
-      this.selectedPageBytes, this.orderid, this.printerItem, this.costs);
+      this.selectedPageBytes, this.orderid, this.printerItem, this.costs, this.date);
 
   @override
   void initState() {
@@ -727,6 +730,7 @@ class _PreviewOrderState extends State<PreviewOrder> {
                                             fileDetails: fileDetails!,
                                             status: 'PROCESSING',
                                             apmId: printerItem['apmid'],
+                                            date: date,
                                           )));
                             });
                           }, fontsize: 16)

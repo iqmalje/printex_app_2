@@ -251,7 +251,8 @@ class _PrintingOrderPageState extends State<PrintingOrderPage>
                 status: order['status'],
                 cost: double.parse(order['cost'].toString()),
                 orderid: order['orderid'],
-                apmId: order['target_apm'],
+                apmId: order['apmid'],
+                date: order['date'],
               ));
 
           setState(() {});

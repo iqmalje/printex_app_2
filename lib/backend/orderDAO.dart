@@ -24,6 +24,7 @@ class OrderDAO {
       target_apm
 
 ''').order('date', ascending: false);
+
     for (var order in orders) {
       //get url
       var url = supabase.storage
@@ -110,7 +111,7 @@ class OrderDAO {
       'accountid': userid,
       'fileid': fileID,
       'cost': cost,
-      'target_apm': apmID
+      'apmid': apmID
     }).select();
 
     await supabase.from('transactions').insert({
