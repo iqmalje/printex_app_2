@@ -6,11 +6,12 @@ class ApmDAO {
   Future<List<dynamic>> getAPMs(double lat, double lng) async {
     var result = await supabase.rpc('get_apm_within_radius',
         params: {'userlat': lat, 'userlong': lng});
-    
+
     return result;
   }
 
   Future<Map> getAPMDetails(String apmid) async {
+    print("TARGET APMID = $apmid");
     var resultAPM = await supabase.from('apms').select('''
           apmid,
           printername,
@@ -20,7 +21,7 @@ class ApmDAO {
           apmdetails (type, bwprint, colorprint, bothsideprint, papersize,layout),
           operatinghours (monday, tuesday, wednesday, thursday, friday, saturday, sunday)
           ''').match({'apmid': apmid}).single();
-    print(resultAPM);
+    print("RESULTAPM = $resultAPM");
     return resultAPM;
   }
 

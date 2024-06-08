@@ -231,7 +231,7 @@ class _PrintingOrderPageState extends State<PrintingOrderPage>
       'Nov',
       'Dec'
     ];
-
+    print("ORDER ITEM = $order");
     double price = double.parse(order['cost'].toString());
     return Material(
       color: Colors.transparent,
@@ -243,6 +243,7 @@ class _PrintingOrderPageState extends State<PrintingOrderPage>
 
           Map filedetails = order['files'];
           filedetails['fileid'] = order['fileid'];
+
           await Switcher().SwitchPage(
               context,
               PreviewPaidOrderPage(

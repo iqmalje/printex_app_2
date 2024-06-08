@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:printex_app_v2/backend/apmDAO.dart';
 import 'package:printex_app_v2/backend/orderDAO.dart';
 import 'package:printex_app_v2/components.dart';
+import 'package:printex_app_v2/navigator/navigator.dart';
 import 'package:printex_app_v2/printing/qrpage.dart';
 import 'package:printex_app_v2/printing/receiptpage.dart';
 import 'package:printex_app_v2/printing/viewdetails.dart';
@@ -29,7 +30,7 @@ class PreviewPaidOrderPage extends StatefulWidget {
 
   @override
   State<PreviewPaidOrderPage> createState() => _PreviewPaidOrderPageState(
-      settings, fileDetails, status, cost, orderid,date, apmId);
+      settings, fileDetails, status, cost, orderid, date, apmId);
 }
 
 class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
@@ -46,7 +47,7 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
   Map<String, dynamic>? apmDetails;
   @override
   Widget build(BuildContext context) {
-    print("orderid = $orderid");
+    print("orderi = $orderid");
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -168,6 +169,7 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                 height: 20,
               ),
               Builder(builder: (context) {
+                print('APMID = $apmId');
                 if (apmId != null) {
                   return FutureBuilder(
                       future: ApmDAO().getAPMDetails(apmId!),
@@ -416,7 +418,8 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                                 status: status,
                                 cost: cost,
                                 orderid: orderid,
-                                apmDetails: apmDetails!, date: date,
+                                apmDetails: apmDetails!,
+                                date: date,
                               ));
                         }, fontsize: 17),
                         const SizedBox(
