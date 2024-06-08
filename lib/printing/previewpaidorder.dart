@@ -47,7 +47,6 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
   Map<String, dynamic>? apmDetails;
   @override
   Widget build(BuildContext context) {
-    print("orderi = $orderid");
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
@@ -402,6 +401,17 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                 height: 20,
               ),
               Padding(
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.sizeOf(context).width * 0.1),
+                child: Text(
+                  'This order will be automatically deleted after 14 days.\nRemaining day(s) : ${14 - DateTime.now().difference(date).inDays}',
+                  style: TextStyle(fontFamily: 'Poppins', fontSize: 12),
+                ),
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Padding(
                 padding: const EdgeInsets.only(bottom: 20.0),
                 child: Builder(builder: (context) {
                   if (status == 'DONE') {
@@ -425,16 +435,16 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                         const SizedBox(
                           width: 20,
                         ),
-                        PrinTEXComponents().greyButton(150, 'Delete file',
+                        PrinTEXComponents().greyButton(150, 'Reorder',
                             () async {
-                          bool? isDeleted = await showDialog(
+                          bool? isReordered = await showDialog(
                               context: context,
                               builder: (context) {
                                 return AlertDialog(
                                   actionsAlignment:
                                       MainAxisAlignment.spaceBetween,
                                   title: const Text(
-                                    'Are you sure you want to delete this file?',
+                                    'Are you sure you want to reorder this file?',
                                     style: TextStyle(
                                         fontFamily: 'Poppins', fontSize: 17),
                                   ),
@@ -445,16 +455,16 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                                     }, fontsize: 15, height: 40),
                                     PrinTEXComponents()
                                         .filledButton(100, 'Confirm', () async {
-                                      await OrderDAO().deleteOrderLive(
-                                          orderid, fileDetails['fileid']);
+                                      await OrderDAO()
+                                          .reorderOrder(orderid, cost);
 
                                       Navigator.of(context).pop(true);
                                     }, fontsize: 15, heightS: 40),
                                   ],
                                 );
                               });
-                          isDeleted ??= false;
-                          if (isDeleted) Navigator.of(context).pop();
+                          isReordered ??= false;
+                          if (isReordered) Navigator.of(context).pop();
                         }, fontsize: 17),
                       ],
                     );
@@ -463,16 +473,15 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                   return Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      PrinTEXComponents().greyButton(150, 'Delete file',
-                          () async {
-                        bool? isDeleted = await showDialog(
+                      PrinTEXComponents().greyButton(150, 'Reorder', () async {
+                        bool? isReordered = await showDialog(
                             context: context,
                             builder: (context) {
                               return AlertDialog(
                                 actionsAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 title: const Text(
-                                  'Are you sure you want to delete this file?',
+                                  'Are you sure you want to reorder this file?',
                                   style: TextStyle(
                                       fontFamily: 'Poppins', fontSize: 17),
                                 ),
@@ -483,16 +492,16 @@ class _PreviewPaidOrderPageState extends State<PreviewPaidOrderPage> {
                                   }, fontsize: 15, height: 40),
                                   PrinTEXComponents()
                                       .filledButton(100, 'Confirm', () async {
-                                    await OrderDAO().deleteOrderLive(
-                                        orderid, fileDetails['fileid']);
+                                    await OrderDAO()
+                                        .reorderOrder(orderid, cost);
 
                                     Navigator.of(context).pop(true);
                                   }, fontsize: 15, heightS: 40),
                                 ],
                               );
                             });
-                        isDeleted ??= false;
-                        if (isDeleted) Navigator.of(context).pop();
+                        isReordered ??= false;
+                        if (isReordered) Navigator.of(context).pop();
                       }, fontsize: 16),
                       const SizedBox(
                         width: 30,

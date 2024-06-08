@@ -11,7 +11,6 @@ import 'package:printex_app_v2/components.dart';
 import 'package:printex_app_v2/printing/printingsettings.dart';
 
 class SelectPrinterPage extends StatefulWidget {
-  
   const SelectPrinterPage({super.key});
 
   @override
@@ -58,6 +57,7 @@ class _SelectPrinterPageState extends State<SelectPrinterPage> {
         desiredAccuracy: geo.LocationAccuracy.high);
   }
 
+  bool hasLoaded = false;
   @override
   void initState() {
     super.initState();
@@ -66,6 +66,7 @@ class _SelectPrinterPageState extends State<SelectPrinterPage> {
       if (value == null) {
         WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
           setState(() {
+            hasLoaded = true;
             showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
@@ -89,6 +90,7 @@ class _SelectPrinterPageState extends State<SelectPrinterPage> {
       } else {
         setState(() {
           position = value;
+          hasLoaded = true;
         });
       }
     });
@@ -99,42 +101,50 @@ class _SelectPrinterPageState extends State<SelectPrinterPage> {
     return Scaffold(
       appBar:
           PrinTEXComponents().appBarWithBackButton('Select PrinTEX', context),
-      body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 25.0),
-        child: FutureBuilder(
-            future: ApmDAO().getAPMs(position!.latitude, position!.longitude),
-            builder: (context, snapshot) {
-              if (!snapshot.hasData) {
-                return const CircularProgressIndicator();
-              }
-              return SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(
-                      height: 25,
-                    ),
-                    const Text(
-                      'Nearest PrinTEX',
-                      style: TextStyle(
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16),
-                    ),
-                    const SizedBox(
-                      height: 15,
-                    ),
-                    ListView.builder(
-                        shrinkWrap: true,
-                        itemCount: snapshot.data!.length,
-                        itemBuilder: (context, index) {
-                          return buildPrinters(snapshot.data!.elementAt(index));
-                        })
-                  ],
-                ),
-              );
-            }),
-      ),
+      body: Builder(builder: (context) {
+        if (!hasLoaded) {
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        }
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 25.0),
+          child: FutureBuilder(
+              future: ApmDAO().getAPMs(position!.latitude, position!.longitude),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const CircularProgressIndicator();
+                }
+                return SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(
+                        height: 25,
+                      ),
+                      const Text(
+                        'Nearest PrinTEX',
+                        style: TextStyle(
+                            fontFamily: 'Poppins',
+                            fontWeight: FontWeight.w700,
+                            fontSize: 16),
+                      ),
+                      const SizedBox(
+                        height: 15,
+                      ),
+                      ListView.builder(
+                          shrinkWrap: true,
+                          itemCount: snapshot.data!.length,
+                          itemBuilder: (context, index) {
+                            return buildPrinters(
+                                snapshot.data!.elementAt(index));
+                          })
+                    ],
+                  ),
+                );
+              }),
+        );
+      }),
     );
   }
 

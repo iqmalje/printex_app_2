@@ -96,6 +96,7 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
             if (tempFile != null) {
               context.read<FileShareProvider>().changeFileShared([]);
               fileUploaded = tempFile;
+              isImage = true;
               setState(() {});
             }
           },

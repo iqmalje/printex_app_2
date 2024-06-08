@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf_render/pdf_render.dart';
+import 'package:printex_app_v2/backend/walletDAO.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:path/path.dart';
@@ -70,6 +72,31 @@ class OrderDAO {
       'copies': resultReturn['copies'],
       'pages': resultReturn['pages'],
     };
+  }
+
+  //reorder
+  Future<void> reorderOrder(String orderID, double cost) async {
+    //check wallet balance
+    double balance = await WalletDAO().getWalletDetails();
+
+    if (balance >= cost) {
+      await supabase.from('orders').update({
+        'status': 'PROCESSING',
+        'date': DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
+      }).eq('orderid', orderID);
+
+      await supabase.from('wallet').update({
+        'balance': balance - cost,
+      }).eq('accountid', supabase.auth.currentUser!.id);
+    } else {
+      throw Exception('Your wallet balance is not sufficient for a reorder!');
+    }
+  }
+
+  Future<void> deleteOlderOrder(List<Map<String, dynamic>> orders) async {
+    for (var element in orders) {
+      print(element['orderid']);
+    }
   }
 
   Future<Map<String, dynamic>> getCosts() async {
