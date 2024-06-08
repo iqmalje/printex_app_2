@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:printex_app_v2/backend/authenticationDAO.dart';
@@ -5,6 +7,7 @@ import 'package:printex_app_v2/components.dart';
 import 'package:printex_app_v2/authentication/forgotpassword.dart';
 import 'package:printex_app_v2/authentication/signuppage.dart';
 import 'package:printex_app_v2/authentication/emailverification.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:flutter_svg/svg.dart';
 
@@ -21,6 +24,38 @@ class _MainPageState extends State<MainPage> {
       password = TextEditingController();
 
   double containerheight = 0;
+
+  late StreamSubscription _intentSub;
+  final _sharedFiles = <SharedMediaFile>[];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _intentSub = ReceiveSharingIntent.instance.getMediaStream().listen((event) {
+      setState(() {
+        _sharedFiles.clear();
+
+        _sharedFiles.addAll(event);
+      });
+
+      print(_sharedFiles.map((e) => e.toMap()));
+    }, onError: (err) {
+      print("error = $err");
+    });
+
+    ReceiveSharingIntent.instance.getInitialMedia().then((value) {
+      setState(() {
+        _sharedFiles.clear();
+        _sharedFiles.addAll(value);
+        print(_sharedFiles.map((f) => f.toMap()));
+
+        // Tell the library that we are done processing the intent.
+        ReceiveSharingIntent.instance.reset();
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     print(MediaQuery.sizeOf(context).height);
@@ -56,6 +91,10 @@ class _MainPageState extends State<MainPage> {
                       ],
                     ),
                   ),
+                  Builder(builder: (context) {
+                    if (_sharedFiles.isEmpty) return Container();
+                    return Text(_sharedFiles.first.toMap().toString());
+                  }),
                   Container(
                     decoration: const BoxDecoration(
                         color: Color(0xFF6F6EFF),

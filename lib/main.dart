@@ -1,7 +1,14 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:printex_app_v2/authentication/signinpage.dart';
 import 'package:printex_app_v2/homepage/temppage.dart';
+import 'package:printex_app_v2/navigator/navigator.dart';
+import 'package:printex_app_v2/printing/selectprinter.dart';
+import 'package:printex_app_v2/providers/fileprovider.dart';
+import 'package:provider/provider.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 bool isLoggedIn = false;
@@ -16,31 +23,76 @@ void main() async {
     isLoggedIn = true;
   }
 
-  runApp(const MyApp());
+  runApp(const MyAppStateful());
 }
 
-class MyApp extends StatelessWidget {
+class MyAppStateful extends StatefulWidget {
+  const MyAppStateful({super.key});
+  @override
+  State<StatefulWidget> createState() => MyApp();
+}
+
+class MyApp extends State<MyAppStateful> {
   static bool needUpdate = false;
-  const MyApp({super.key});
+
+  @override
+  void initState() {
+    // Initialize listening for incoming shared files
+    ReceiveSharingIntent.instance
+        .getInitialMedia()
+        .then((List<SharedMediaFile> value) {
+      if (value.isNotEmpty) {
+        //update provider
+        NavigationService.navigatorKey.currentContext!
+            .watch<FileShareProvider>()
+            .changeFileShared(value);
+        Navigator.pushReplacement(
+          NavigationService.navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (context) => const SelectPrinterPage()),
+        );
+      }
+    });
+
+    // For receiving intents while the app is in memory
+    ReceiveSharingIntent.instance
+        .getMediaStream()
+        .listen((List<SharedMediaFile> value) {
+      if (value.isNotEmpty) {
+        NavigationService.navigatorKey.currentContext!
+            .read<FileShareProvider>()
+            .changeFileShared(value);
+        Navigator.pushReplacement(
+          NavigationService.navigatorKey.currentContext!,
+          MaterialPageRoute(builder: (context) => const SelectPrinterPage()),
+        );
+      }
+    });
+  }
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      initialRoute: '/',
-      routes: {
-        '/signin': (context) => const MainPage(),
-        '/home': (context) => TempPage(),
-        '/printingpage': (context) => TempPage(
-              pageindex: 1,
-            )
-      },
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (context) => FileShareProvider())
+      ],
+      child: MaterialApp(
+        navigatorKey: NavigationService.navigatorKey,
+        title: 'Flutter Demo',
+        initialRoute: '/',
+        routes: {
+          '/signin': (context) => const MainPage(),
+          '/home': (context) => TempPage(),
+          '/printingpage': (context) => TempPage(
+                pageindex: 1,
+              )
+        },
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: isLoggedIn ? TempPage() : const MainPage(),
       ),
-      home: isLoggedIn ? TempPage() : const MainPage(),
     );
   }
 }

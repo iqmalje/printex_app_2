@@ -11,6 +11,7 @@ import 'package:printex_app_v2/components.dart';
 import 'package:printex_app_v2/printing/printingsettings.dart';
 
 class SelectPrinterPage extends StatefulWidget {
+  
   const SelectPrinterPage({super.key});
 
   @override

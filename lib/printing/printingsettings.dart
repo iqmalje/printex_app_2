@@ -13,8 +13,13 @@ import 'package:pdf_render/pdf_render.dart';
 import 'package:printex_app_v2/backend/apmDAO.dart';
 import 'package:printex_app_v2/backend/orderDAO.dart';
 import 'package:printex_app_v2/components.dart';
+import 'package:printex_app_v2/navigator/navigator.dart';
 import 'package:printex_app_v2/printing/previeworder.dart';
 import 'package:printex_app_v2/printing/rangepage.dart';
+import 'package:printex_app_v2/printing/scanimage.dart';
+import 'package:printex_app_v2/providers/fileprovider.dart';
+import 'package:provider/provider.dart';
+import 'package:receive_sharing_intent/receive_sharing_intent.dart';
 
 class OrderSettingPage extends StatefulWidget {
   dynamic printerItem;
@@ -32,6 +37,7 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
       pagepersheet = '1 in 1';
 
   TextEditingController copies = TextEditingController(text: '1');
+  // will check for sharedfile
   File? fileUploaded;
   int pagecount = 0;
   String range = '';
@@ -49,6 +55,14 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
   bool hasLoaded = false;
   @override
   void initState() {
+    List<SharedMediaFile> sharedFiles = NavigationService
+        .navigatorKey.currentContext!
+        .watch<FileShareProvider>()
+        .sharedFiles;
+
+    if (sharedFiles.isNotEmpty) {
+      this.fileUploaded = File(sharedFiles.first.path);
+    }
     ApmDAO().getAPMCost(printerItem['apmid']).then((value) => {
           WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
             setState(() {
@@ -74,6 +88,18 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        floatingActionButton: FloatingActionButton(
+          child: Icon(Icons.camera_alt),
+          onPressed: () async {
+            File? tempFile =
+                await Switcher().SwitchPage(context, ScanDocumentPage());
+            if (tempFile != null) {
+              context.read<FileShareProvider>().changeFileShared([]);
+              fileUploaded = tempFile;
+              setState(() {});
+            }
+          },
+        ),
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
           automaticallyImplyLeading: false,
