@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
 import 'package:flutter/material.dart';
-import 'package:pdf_render/pdf_render.dart';
+import 'package:pdfrx/pdfrx.dart';
 
 class PickRangePage extends StatefulWidget {
   File file;
@@ -41,7 +41,7 @@ class _PickRangePageState extends State<PickRangePage> {
           if (!isLoaded) {
             selectedPage.clear();
             selectedPage =
-                List.generate(snapshot.data!.pageCount, (index) => true);
+                List.generate(snapshot.data!.pages.length, (index) => true);
           }
 
           isLoaded = true;
@@ -57,10 +57,10 @@ class _PickRangePageState extends State<PickRangePage> {
                         setState(() {
                           if (!selectedPage.contains(true)) {
                             selectedPage = List.generate(
-                                snapshot.data!.pageCount, (index) => true);
+                                snapshot.data!.pages.length, (index) => true);
                           } else {
                             selectedPage = List.generate(
-                                snapshot.data!.pageCount, (index) => false);
+                                snapshot.data!.pages.length, (index) => false);
                           }
                         });
                       },
@@ -108,7 +108,7 @@ class _PickRangePageState extends State<PickRangePage> {
                           formatNumberRanges(range, snapshot.data!);
                       Navigator.of(context).pop({
                         'range': rangeDetails['range'],
-                        'pagecount': rangeDetails['pagecount'],
+                        'pages.length': rangeDetails['pages.length'],
                         'selectedPagesBytes': selectedPagesBytes,
                       });
                     },
@@ -133,7 +133,7 @@ class _PickRangePageState extends State<PickRangePage> {
                 child: GridView.count(
                   childAspectRatio: (1 / 1.41),
                   crossAxisCount: 2,
-                  children: List.generate(snapshot.data!.pageCount,
+                  children: List.generate(snapshot.data!.pages.length,
                       (index) => buildContainerPreview(snapshot.data!, index)),
                 ),
               ));
@@ -177,8 +177,8 @@ class _PickRangePageState extends State<PickRangePage> {
 
     if (numbers.isEmpty) {
       return {
-        'range': '1-${document.pageCount}',
-        'pagecount': document.pageCount
+        'range': '1-${document.pages.length}',
+        'pages.length': document.pages.length
       }; // Handle empty input
     }
 
@@ -210,17 +210,17 @@ class _PickRangePageState extends State<PickRangePage> {
     }
 
     // Join the ranges with commas and return the formatted string
-    return {'range': ranges.join(','), 'pagecount': numbers.length};
+    return {'range': ranges.join(','), 'pages.length': numbers.length};
   }
 
   Future<PdfDocument> getFirstImageOfPDF() async {
     List<Uint8List> lists = [];
     List<dynamic> decodedImage = [];
     var document = await PdfDocument.openFile(file.path);
-    for (var i = 0; i < document.pageCount; i++) {
-      final page = await document.getPage(i + 1);
+    for (var i = 0; i < document.pages.length; i++) {
+      final page = await document.pages[i + 1];
       var pageImage = await page.render();
-      var img = await pageImage.createImageDetached();
+      var img = await pageImage!.createImage();
       var imgbytes = await img.toByteData(format: ImageByteFormat.png);
       lists.add(imgbytes!.buffer.asUint8List());
       var imgsettings =

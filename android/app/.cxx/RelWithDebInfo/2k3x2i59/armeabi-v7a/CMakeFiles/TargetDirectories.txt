@@ -1,0 +1,2 @@
+/Users/iqmalaizat/Documents/projects/printex_app_2/android/app/.cxx/RelWithDebInfo/2k3x2i59/armeabi-v7a/CMakeFiles/edit_cache.dir
+/Users/iqmalaizat/Documents/projects/printex_app_2/android/app/.cxx/RelWithDebInfo/2k3x2i59/armeabi-v7a/CMakeFiles/rebuild_cache.dir

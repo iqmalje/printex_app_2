@@ -3,7 +3,8 @@ import 'dart:typed_data';
 
 import 'package:flutter/foundation.dart';
 import 'package:intl/intl.dart';
-import 'package:pdf_render/pdf_render.dart';
+
+import 'package:pdfrx/pdfrx.dart';
 import 'package:printex_app_v2/backend/walletDAO.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -12,6 +13,8 @@ import 'package:path/path.dart';
 class OrderDAO {
   SupabaseClient supabase = Supabase.instance.client;
   Future<List<dynamic>> getOrdersByAccounts() async {
+    print('hello');
+
     //fetch orders based on userid
     List<dynamic> orders = await supabase.from('orders').select('''
       orderid,
@@ -26,7 +29,7 @@ class OrderDAO {
       target_apm
 
 ''').order('date', ascending: false);
-
+    print(orders);
     for (var order in orders) {
       //get url
       var url = supabase.storage
@@ -85,7 +88,7 @@ class OrderDAO {
         'date': DateFormat('yyyy-MM-dd hh:mm').format(DateTime.now()),
       }).eq('orderid', orderID);
 
-      await supabase.from('wallet').update({
+      await supabase.from('wallets').update({
         'balance': balance - cost,
       }).eq('accountid', supabase.auth.currentUser!.id);
     } else {

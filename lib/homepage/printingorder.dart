@@ -50,7 +50,7 @@ class _PrintingOrderPageState extends State<PrintingOrderPage>
                       element['status'] == 'PRINTING')
                   .toList();
               ordersCompleted = snapshot.data!
-                  .where((element) => element['status'] == 'DONE')
+                  .where((element) => element['status'] == 'COMPLETED')
                   .toList();
               return Padding(
                 padding:

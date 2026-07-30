@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:printex_app_v2/authentication/signinpage.dart';
 import 'package:printex_app_v2/backend/orderDAO.dart';
 import 'package:printex_app_v2/homepage/temppage.dart';
@@ -24,7 +25,11 @@ void main() async {
     isLoggedIn = true;
   }
 
-  
+  Stripe.publishableKey = dotenv.env['STRIPE_PUBLISHABLE_KEY']!;
+  Stripe.merchantIdentifier = 'hopefully.this.works';
+  Stripe.urlScheme =
+      'http://www.printex.com.my/version-test/success_printex?debug_mode=true';
+  await Stripe.instance.applySettings();
 
   runApp(const MyAppStateful());
 }
@@ -81,6 +86,7 @@ class MyApp extends State<MyAppStateful> {
       ],
       child: MaterialApp(
         navigatorKey: NavigationService.navigatorKey,
+        debugShowCheckedModeBanner: false,
         title: 'Flutter Demo',
         initialRoute: '/',
         routes: {

@@ -1,5 +1,5 @@
 buildscript {
-    ext.kotlin_version = '1.9.24'
+    ext.kotlin_version = '2.1.21'
     repositories {
         google()
         mavenCentral()
@@ -27,4 +27,16 @@ subprojects {
 
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
+}
+
+
+gradle.projectsEvaluated {
+    subprojects { project ->
+        project.plugins.withType(com.android.build.gradle.BasePlugin) {
+            def android = project.extensions.getByName("android")
+            if (!android.hasProperty("namespace") || android.namespace == null || android.namespace.isEmpty()) {
+                android.namespace = project.group?.toString() ?: "com.example.${project.name}"
+            }
+        }
+    }
 }

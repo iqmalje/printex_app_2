@@ -6,7 +6,6 @@ class ApmDAO {
   Future<List<dynamic>> getAPMs(double lat, double lng) async {
     var result = await supabase.rpc('get_apm_within_radius',
         params: {'userlat': lat, 'userlong': lng});
-
     return result;
   }
 

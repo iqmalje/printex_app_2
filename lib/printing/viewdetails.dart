@@ -2,7 +2,8 @@ import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
-import 'package:pdf_render/pdf_render.dart';
+import 'package:pdfrx/pdfrx.dart';
+
 import 'package:printex_app_v2/backend/orderDAO.dart';
 
 class ViewDetailsPage extends StatefulWidget {
@@ -107,10 +108,10 @@ class _ViewDetailsPageState extends State<ViewDetailsPage> {
     var nums = parseRange(settings['pages']);
     print("total page  = $totalpage");
     for (var i = 0; i < totalpage; i++) {
-      final page = await pdf.getPage(nums[i]);
+      final page = await pdf.pages[nums[i]];
 
       var pageImage = await page.render();
-      var img = await pageImage.createImageDetached();
+      var img = await pageImage!.createImage();
       var imgbytes = await img.toByteData(format: ImageByteFormat.png);
       //pageBytes.add(imgbytes!.buffer.asUint8List());
 
@@ -135,14 +136,14 @@ class _ViewDetailsPageState extends State<ViewDetailsPage> {
   Future<Map<String, dynamic>> getFirstImageOfPDF(PdfDocument pdf) async {
     final document = pdf;
 
-    final page = await document.getPage(1);
+    final page = document.pages[1];
     var pageImage = await page.render();
-    var img = await pageImage.createImageDetached();
+    var img = await pageImage!.createImage();
     var imgbytes = await img.toByteData(format: ImageByteFormat.png);
     var imgsettings = await decodeImageFromList(imgbytes!.buffer.asUint8List());
 
     return {
-      'pagecount': document.pageCount,
+      'pagecount': document.pages.length,
       'bytes': imgbytes.buffer.asUint8List(),
       'layout': imgsettings.width > imgsettings.height ? 3 : 0
     };

@@ -93,7 +93,7 @@ class AuthenticationDAO {
     }
 
     await supabase
-        .from('wallet')
+        .from('wallets')
         .insert({'accountid': response.user!.id, 'balance': 0});
   }
 

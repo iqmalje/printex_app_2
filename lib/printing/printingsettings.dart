@@ -9,7 +9,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:path/path.dart';
-import 'package:pdf_render/pdf_render.dart';
+import 'package:pdfrx/pdfrx.dart';
+
 import 'package:printex_app_v2/backend/apmDAO.dart';
 import 'package:printex_app_v2/backend/orderDAO.dart';
 import 'package:printex_app_v2/components.dart';
@@ -149,7 +150,7 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
                 child: ConstrainedBox(
                   constraints: BoxConstraints(
                       minHeight: 0,
-                      maxHeight: MediaQuery.sizeOf(context).height - 50),
+                      maxHeight: MediaQuery.sizeOf(context).height),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -611,7 +612,7 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
                                 if (temprange == null) {
                                   var doc = await PdfDocument.openFile(
                                       fileUploaded!.path);
-                                  range = '1-${doc.pageCount}';
+                                  range = '1-${doc.pages.length}';
                                 } else {
                                   range = temprange['range'];
                                   pagecount = temprange['pagecount'];
@@ -1059,15 +1060,15 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
     double basePrice = 0;
     if (side == 'Single' || pagecount == 1) {
       if (color == 'Black & White') {
-        basePrice = 0.2;
+        basePrice = costs['black_white_single'] + .0;
       } else {
-        basePrice = 0.75;
+        basePrice = costs['color_single'] + .0;
       }
     } else {
       if (color == 'Black & White') {
-        basePrice = 0.15;
+        basePrice = costs['black_white_both'] + .0;
       } else {
-        basePrice = 0.6;
+        basePrice = costs['color_both'] + .0;
       }
     }
 
@@ -1081,6 +1082,6 @@ class _OrderSettingPageState extends State<OrderSettingPage> {
   Future<int> getPDFPageCount(File file) async {
     var document = await PdfDocument.openFile(file.path);
 
-    return document.pageCount;
+    return document.pages.length;
   }
 }

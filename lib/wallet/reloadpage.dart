@@ -1,9 +1,10 @@
 import 'package:currency_text_input_formatter/currency_text_input_formatter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 // import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:printex_app_v2/backend/walletDAO.dart';
 import 'package:printex_app_v2/components.dart';
-import 'package:printex_app_v2/model/paymentmethod.dart';
+import 'package:printex_app_v2/model/paymentmethod.dart' as printex;
 import 'package:printex_app_v2/wallet/selectpayment.dart';
 
 class ReloadWalletPage extends StatefulWidget {
@@ -16,7 +17,7 @@ class ReloadWalletPage extends StatefulWidget {
 class _ReloadWalletPageState extends State<ReloadWalletPage> {
   TextEditingController amount = TextEditingController();
   String amountChosen = '0.00';
-  PaymentMethod methodChosen = PaymentMethod(
+  printex.PaymentMethod methodChosen = printex.PaymentMethod(
       paymentName: 'Online Banking',
       paymentImage: 'assets/images/FPX-logo.png');
 
@@ -434,35 +435,29 @@ class _ReloadWalletPageState extends State<ReloadWalletPage> {
 
                       var transactionid = await WalletDAO()
                           .addPendingReload(double.parse(amount.text));
-                      /*
-                      String body =
-                          'amount=${(double.parse(amount.text) * 100).toInt()}&currency=myr&description=$transactionid&payment_method_types[]=fpx';
-                      var paymentIntent = await http
-                          .post(
-                              Uri.parse(
-                                  'https://api.stripe.com/v1/payment_intents'),
-                              headers: {
-                                'Authorization':
-                                    'Bearer ${dotenv.env['STRIPE_TEST_SECRET_KEY']}',
-                                'Content-type':
-                                    'application/x-www-form-urlencoded'
-                              },
-                              body: body)
-                          .then((value) => json.decode(value.body));
-                          */
 
                       var data = await WalletDAO().getPaymentIntent(
                           transactionid,
-                          (double.parse(amount.text) * 100).toInt());
+                          (double.parse(amount.text) * 100).toInt(),
+                          methodChosen.paymentName == 'Online Banking'
+                              ? 'FPX'
+                              : 'GRAB');
 
                       var paymentIntent = data['data'];
+                      var clientSecret = paymentIntent['client_secret'];
+
+                      print(clientSecret);
+
+                      await Stripe.instance.initPaymentSheet(
+                        paymentSheetParameters: SetupPaymentSheetParameters(
+                          paymentIntentClientSecret: clientSecret,
+                          merchantDisplayName: 'PrinTEX',
+                          allowsDelayedPaymentMethods: true,
+                        ),
+                      );
                       try {
-                        // await Stripe.instance.confirmPayment(
-                        //     paymentIntentClientSecret:
-                        //         paymentIntent['client_secret'],
-                        //     data: const PaymentMethodParams.fpx(
-                        //         paymentMethodData: PaymentMethodDataFpx(
-                        //             testOfflineBank: false)));
+                        await Stripe.instance.presentPaymentSheet();
+                        // FPX supported, bank picker included automatically
 
                         await WalletDAO().addWalletBalance(
                             double.parse(amount.text), transactionid);
@@ -470,7 +465,7 @@ class _ReloadWalletPageState extends State<ReloadWalletPage> {
                         Navigator.pop(context);
                       } catch (e) {
                         print(e);
-                        //await SupabaseB().setStatusFailedReload(transactionid);
+                        // await SupabaseB().setStatusFailedReload(transactionid);
                         ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content:
@@ -555,11 +550,12 @@ class _ReloadWalletPageState extends State<ReloadWalletPage> {
                   const Spacer(),
                   IconButton(
                       onPressed: () async {
-                        PaymentMethod? method = await Switcher().SwitchPage(
-                            context,
-                            SelectPaymentMethod(
-                              currentMethod: methodChosen,
-                            ));
+                        printex.PaymentMethod? method =
+                            await Switcher().SwitchPage(
+                                context,
+                                SelectPaymentMethod(
+                                  currentMethod: methodChosen,
+                                ));
 
                         if (method == null) return;
                         setState(() {

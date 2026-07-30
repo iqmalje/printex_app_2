@@ -18,13 +18,8 @@ class _SelectPaymentMethodState extends State<SelectPaymentMethod> {
         paymentName: 'Online Banking',
         paymentImage: 'assets/images/FPX-logo.png'),
     PaymentMethod(
-        paymentName: 'Touch n\' Go eWallet',
+        paymentName: 'Touch n\' Go',
         paymentImage: 'assets/images/TNG-logo.png'),
-    PaymentMethod(
-        paymentName: 'ShopeePay',
-        paymentImage: 'assets/images/SHOPEE-logo.png'),
-    PaymentMethod(
-        paymentName: 'GrabPay', paymentImage: 'assets/images/GRAB-logo.png'),
   ];
 
   PaymentMethod currentMethod;
@@ -50,7 +45,7 @@ class _SelectPaymentMethodState extends State<SelectPaymentMethod> {
               children: ListTile.divideTiles(
                   context: context,
                   tiles: List.generate(
-                      4,
+                      2,
                       (index) => ListTile(
                             title: buildPaymentMethod(index, methods[index]),
                           ))).toList(),

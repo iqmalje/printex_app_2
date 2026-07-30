@@ -5,16 +5,23 @@ class WalletDAO {
 
   Future<double> getWalletDetails() async {
     print("getting wallet details");
-    var result = await supabase.from('wallet').select('balance');
+    var result = await supabase.from('wallets').select('balance');
     print("result is $result");
     return double.parse(result[0]['balance'].toString());
   }
 
+  Future<void> deductBalance(double cost) async {
+    var accountId = supabase.auth.currentUser!.id;
+
+    await supabase.rpc('deduct_wallet_balance',
+        params: {'p_cost': cost, 'p_accountid': accountId});
+  }
+
   Future<void> addWalletBalance(double amount, String transactionID) async {
-    var balance = await supabase.from('wallet').select('balance');
+    var balance = await supabase.from('wallets').select('balance');
 
     await supabase
-        .from('wallet')
+        .from('wallets')
         .update({'balance': balance[0]['balance'] + amount}).eq(
             'accountid', supabase.auth.currentUser!.id);
 
@@ -47,9 +54,13 @@ class WalletDAO {
     return data[0]['transactionid'];
   }
 
-  Future<dynamic> getPaymentIntent(String transactionid, int amount) async {
-    var data = await supabase.functions.invoke('init-payment-stripe',
-        body: {'transactionid': transactionid, 'amount': amount});
+  Future<dynamic> getPaymentIntent(
+      String transactionid, int amount, String paymentType) async {
+    var data = await supabase.functions.invoke('stripe-init-payment', body: {
+      'transactionid': transactionid,
+      'amount': amount,
+      'paymentType': paymentType
+    });
     return data.data;
   }
 }

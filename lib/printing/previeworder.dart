@@ -3,11 +3,13 @@
 import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:pdf_render/pdf_render.dart';
+
 import 'package:path/path.dart';
+import 'package:pdfrx/pdfrx.dart';
 import 'package:printex_app_v2/backend/orderDAO.dart';
 import 'package:printex_app_v2/backend/walletDAO.dart';
 import 'package:printex_app_v2/components.dart';
@@ -58,8 +60,16 @@ class _PreviewOrderState extends State<PreviewOrder> {
   Map<String, dynamic> costs;
 
   Uint8List? coverBytes;
-  _PreviewOrderState(this.settings, this.file, this.fileDetails, this.cost,
-      this.selectedPageBytes, this.orderid, this.printerItem, this.costs, this.date);
+  _PreviewOrderState(
+      this.settings,
+      this.file,
+      this.fileDetails,
+      this.cost,
+      this.selectedPageBytes,
+      this.orderid,
+      this.printerItem,
+      this.costs,
+      this.date);
 
   @override
   void initState() {
@@ -673,13 +683,13 @@ class _PreviewOrderState extends State<PreviewOrder> {
                             Uint8List byte =
                                 (await screenshotController.capture())!;
 
-                            //     await SupabaseB().getWalletDetails();
+                            await WalletDAO().getWalletDetails();
 
                             bool? isUserConfirmed =
                                 await showBottomMenu(context, walletbalance);
                             isUserConfirmed ??= false;
                             if (!isUserConfirmed) return;
-                            //await SupabaseB().deductBalance(cost);
+                            await WalletDAO().deductBalance(cost);
                             setState(() {
                               isUploading = true;
                             });
@@ -779,7 +789,7 @@ class _PreviewOrderState extends State<PreviewOrder> {
     double screenheight = MediaQuery.sizeOf(scaffoldcontext).height;
     print(ScaleSize.textScaleFactor(scaffoldcontext));
     double height = screenheight > 800
-        ? 0.55
+        ? 0.6
         : screenheight < 700
             ? 0.65
             : 0.6;
@@ -1300,18 +1310,31 @@ class _PreviewOrderState extends State<PreviewOrder> {
   }
 
   Future<Map<String, dynamic>> getFirstImageOfPDF(File file) async {
-    final document = await PdfDocument.openFile(file.path);
+    final doc = await PdfDocument.openFile(file.path);
+    final pages = doc.pages;
+    if (pages.isEmpty) {
+      await doc.dispose();
+      throw Exception("PDF has no pages");
+    }
 
-    final page = await document.getPage(1);
-    var pageImage = await page.render();
-    var img = await pageImage.createImageDetached();
-    var imgbytes = await img.toByteData(format: ImageByteFormat.png);
-    var imgsettings = await decodeImageFromList(imgbytes!.buffer.asUint8List());
+    final page = pages.first;
+    final pageImage = await page.render();
+
+    // Ensure ui.Image is created
+
+    final uiImage = await pageImage!.createImage();
+
+    final byteData = await uiImage.toByteData(format: ui.ImageByteFormat.png);
+    final bytes = byteData!.buffer.asUint8List();
+    final layout = uiImage.width > uiImage.height ? 3 : 0;
+
+    // Clean up
+    await doc.dispose();
 
     return {
-      'pagecount': document.pageCount,
-      'bytes': imgbytes.buffer.asUint8List(),
-      'layout': imgsettings.width > imgsettings.height ? 3 : 0
+      'pagecount': pages.length,
+      'bytes': bytes,
+      'layout': layout,
     };
   }
 

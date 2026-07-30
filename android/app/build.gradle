@@ -21,23 +21,25 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
+// Note: The 'keystoreProperties' block is kept for reference,
+// but its 'release' signingConfig will not be applied to the 'release' build type below.
 def keystoreProperties = new Properties()
 def keystorePropertiesFile = rootProject.file('key.properties')
 if (keystorePropertiesFile.exists()) {
     keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
 }
 android {
-    namespace "com.larabit.printex_app_v2"
-    compileSdkVersion 34
+    namespace = "com.larabit.printex_app_v2"
+    compileSdkVersion 35
     ndkVersion flutter.ndkVersion
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
     }
 
     sourceSets {
@@ -56,6 +58,8 @@ android {
     }
     signingConfigs {
         release {
+            // This 'release' signingConfig is defined but will not be applied
+            // to the 'release' buildType below, resulting in an unsigned APK.
             keyAlias keystoreProperties['keyAlias']
             keyPassword keystoreProperties['keyPassword']
             storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
@@ -64,11 +68,10 @@ android {
     }
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-
-            signingConfig signingConfigs.debug
-            signingConfig signingConfigs.release
+            // Removed signingConfig lines to produce an unsigned release APK.
+            // This APK will be suitable for testing but not for app store distribution.
+            // If you need a signed APK later, you will re-add:
+            // signingConfig signingConfigs.release
         }
     }
 }
